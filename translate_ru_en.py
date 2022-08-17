@@ -41,17 +41,32 @@ for i in range(len(sentence_list)):
     translated_sentence = translation(text, max_length = 512)[0]['translation_text']
     translated_text.append(translated_sentence)    
 
-full_text = ''.join(translated_text)
+full_text = ' '.join(translated_text) #Joins list items together with a space in between
 print(full_text)
 
+## Write to file
 
-#Checking how many tokens
-model_inputs = tokenizer(text, return_tensors = "pt")
+import os
+os.getcwd()
 
-model_inputs
+os.chdir('.spyder-py3')
+os.chdir('machine_translate_ru_en')
+os.chdir('machine_translation_rus_cases')
+
+with open("case_1-1125_24_july_2020.txt","w", encoding="utf-8") as f:
+    f.write(full_text)
+
+
+#Html_file= open("case_1-1125_24_july_2020.html","w", encoding="utf-8")
+#Html_file.write(full_text)
+#Html_file.close()
+
+# Checking how many tokens
+#model_inputs = tokenizer(text, return_tensors = "pt")
+
+#model_inputs
 
 
 
-    len(sentence_list)
     
     
