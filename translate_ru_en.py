@@ -5,17 +5,17 @@ Spyder Editor
 This is a temporary script file.
 """
 
-## Loading a json file of sentences
-import pandas as pd
+## Working directory
+import os
 
-sentence_data = pd.read_json("C:/Users/colej/Documents/Research projects/scrape_russian_courts/Data/Text_lists/test.json", encoding='UTF-8')
-sentence_data.head
+os.getcwd()
 
-## Convert to list
+os.chdir('.spyder-py3')
+os.chdir('machine_translate_ru_en')
+os.chdir('machine_translation_rus_cases')
+os.chdir('Translations')  #This is where saved texts go
 
-sentence_list = sentence_data.iloc[:, 0].tolist()
-  
-    
+
 ## Translation code
 
 from transformers import pipeline
@@ -28,33 +28,52 @@ model = AutoModelForSeq2SeqLM.from_pretrained("Helsinki-NLP/opus-mt-ru-en")
 
 
 translation = pipeline("translation_ru_to_en", model=model, tokenizer=tokenizer)
+## Loading the list of all json files
 
-## Selecting the text in a for loop
+path = 'C:/Users/colej/Documents/Research projects/scrape_russian_courts/Data/Text_lists' #This is vhere json files come from
+files = os.listdir(path)
 
-#sentence_data.set_index("text1")
-#sentence_data.loc[[1]]
 
-translated_text = list()
+## Loading a json file of sentences and translating in a loop
+import pandas as pd
 
-for i in range(len(sentence_list)):
-    text = sentence_list[i]
-    translated_sentence = translation(text, max_length = 512)[0]['translation_text']
-    translated_text.append(translated_sentence)    
+for i in range(31, 40, 1):    #Full version would say range(len(files)); current version is for testing
+    filepath_current = [path, files[i]]
+    filepath_current = '/'.join(filepath_current)
+    sentence_data = pd.read_json(filepath_current)
+    sentence_data.head
 
-full_text = ' '.join(translated_text) #Joins list items together with a space in between
-print(full_text)
+    ## Convert to list
 
-## Write to file
+    sentence_list = sentence_data.iloc[:, 0].tolist()
+  
+    
+    ## Selecting the text in a for loop
 
-import os
-os.getcwd()
+  
+    #Getting caseid
+    filename_current = files[i]
+    caseid = str ( ''.join(filter(str.isdigit, filename_current) ) )
+    
+    translated_text = list()  #Empty list for translations
 
-os.chdir('.spyder-py3')
-os.chdir('machine_translate_ru_en')
-os.chdir('machine_translation_rus_cases')
+    for j in range(len(sentence_list)):
+        text = sentence_list[j]
+        translated_sentence = translation(text, max_length = 512)[0]['translation_text']
+        translated_text.append(translated_sentence)
+        print("Current translation:", str(j), "of", str(len(sentence_list)))
+        
+    full_text = ' '.join(translated_text) #Joins list items together with a space in between
+    print(full_text)
 
-with open("case_1-1125_24_july_2020.txt","w", encoding="utf-8") as f:
-    f.write(full_text)
+    ## Write to file
+    filename_save = ["caseid", caseid] #The string "caseid" plus the actual id number
+    filename_save = '_'.join(filename_save)
+    filename_save = [filename_save, ".txt"]
+    filename_save = ''.join(filename_save)  #I assume there is a less hackish way to do this...
+
+    with open(filename_save,"w", encoding="utf-8") as f:
+        f.write(full_text)
 
 
 #Html_file= open("case_1-1125_24_july_2020.html","w", encoding="utf-8")
