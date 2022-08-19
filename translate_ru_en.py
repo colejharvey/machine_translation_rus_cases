@@ -37,7 +37,7 @@ files = os.listdir(path)
 ## Loading a json file of sentences and translating in a loop
 import pandas as pd
 
-for i in range(31, 40, 1):    #Full version would say range(len(files)); current version is for testing
+for i in range(1, 40, 1):    #Full version would say range(len(files)); current version is for testing
     filepath_current = [path, files[i]]
     filepath_current = '/'.join(filepath_current)
     sentence_data = pd.read_json(filepath_current)
@@ -64,6 +64,7 @@ for i in range(31, 40, 1):    #Full version would say range(len(files)); current
         print("Current translation:", str(j), "of", str(len(sentence_list)))
         
     full_text = ' '.join(translated_text) #Joins list items together with a space in between
+    full_text = full_text.replace(" &apos; ", "' ")  #This fixes an error with apostrophes
     print(full_text)
 
     ## Write to file
