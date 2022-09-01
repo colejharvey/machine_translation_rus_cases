@@ -35,12 +35,13 @@ translation = pipeline("translation_ru_to_en", model=model, tokenizer=tokenizer)
 
 path = 'C:/Users/colharv/Documents/Research projects/machine_translation_rus_cases/Russian texts/Text_lists' #This is vhere json files come from
 files = os.listdir(path)
+files = files[0:999]
 
 
 ## Loading a json file of sentences and translating in a loop
 import pandas as pd
 
-for i in range(167, 200, 1):    #Full version would say range(len(files)); current version is for testing
+for i in range(421, 500, 1):    #Full version would say range(len(files)); current version is for testing
     filepath_current = [path, files[i]]
     filepath_current = '/'.join(filepath_current)
     sentence_data = pd.read_json(filepath_current)
@@ -62,13 +63,25 @@ for i in range(167, 200, 1):    #Full version would say range(len(files)); curre
 
     for j in range(len(sentence_list)):
         text = sentence_list[j]
+        text = " ".join(text.split())  #Remove excess whitespace (this should be okay since each is a sentence, no newlines)
+        text = text.replace('«', "'")
+        text = text.replace('»', "'") #Remove Russian quote marks
         nltk_tokens = nltk.word_tokenize(text)  #Gets approx number of tokens
-        if len(nltk_tokens) > 500:  #If a large sentence, follow this path to break up by semi-colons
+        if len(nltk_tokens) > 300 and ';' in text:  #If a large sentence, follow this path to break up by semi-colons
             print("Long string detected; splitting into clauses...")    
             text_split = text.split(';')
           #  translated_longsent = list() #Empty list for long sentence clauses
             for q in range(len(text_split)):
                 clause = text_split[q]
+                translated_clause = translation(clause, max_length = 512)[0]['translation_text']
+            #    translated_longsent.append(translated_clause)
+            #' '.join(translated_longsent) #Joins list items together with a space in between
+                translated_text.append(translated_clause)
+        if len(nltk_tokens) > 300 and ':' in text:
+            print("Long string detected; splitting into clauses...")    
+            text_split = text.split(':')
+            for r in range(len(text_split)):
+                clause = text_split[r]
                 translated_clause = translation(clause, max_length = 512)[0]['translation_text']
             #    translated_longsent.append(translated_clause)
             #' '.join(translated_longsent) #Joins list items together with a space in between
@@ -90,8 +103,8 @@ for i in range(167, 200, 1):    #Full version would say range(len(files)); curre
 
     with open(filename_save,"w", encoding="utf-8") as f:
         f.write(full_text)
-    print("Document", str(i), "completed.")    
-
+    print("Document", str(i), "completed.")
+    del(full_text)    
 #Html_file= open("case_1-1125_24_july_2020.html","w", encoding="utf-8")
 #Html_file.write(full_text)
 #Html_file.close()
